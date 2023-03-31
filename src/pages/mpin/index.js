@@ -1,0 +1,285 @@
+//Import Library
+import React, {useEffect, useState} from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Alert,
+  Modal,
+  ScrollView,
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import {useSelector, useDispatch} from 'react-redux';
+import CountDown from 'react-native-countdown-component';
+import { MpinChecking } from '../../services/redux/reducer/mpinChecking';
+import { useNavigation } from '@react-navigation/native';
+
+
+//Import Component
+import BackMenu from '../../components/moleculs/backMenu';
+import ButtonClick from '../../components/atoms/Button';
+import NumberKeyboard from '../../components/moleculs/numberKeyboard';
+import { setMpin } from '../../services/redux/reducer/mpinSlice';
+
+//Import Assets
+
+import CancelKeyboardOtp from '../../../assets/icon/cancel_keyboard_otp.svg';
+import BackgroundGradient from '../../../assets/image/background_gradient.png'
+
+import Loading from '../../components/atoms/loading';
+import AlertGagal from '../../components/organism/alertGagal';
+import AlertDone from '../../components/organism/alertDone';
+import ImageLockPassword from '../../../assets/image/lock_password.png'
+
+const MPIN = ({navigation, route}) => {
+  const {fromScreen}= route.params
+ 
+  const stateDataRegister = useSelector(state => state.register);
+  const stateDataMpin=useSelector(state=>state.mpin)
+  const [isiMpin, setIsiMpin] = useState([]);
+  const [isVisible, setIsVisible]=useState(false)
+  const [isVisibleTimeOut, setIsVisibleTimeOut]=useState(false)
+  const [isVisibleInvalid, setIsVisibleInvalid]=useState(false)
+  const [isRunningCountdown, setIsRunningCountdown]=useState(true)
+  const dispatch = useDispatch();
+  
+  const deletePin = item => {
+    console.log('Delete Berhasil');
+    setIsiMpin(isiMpin.slice(0, -1));
+  };
+
+  useEffect(() => {
+    
+    if(isiMpin!=null||isiMpin!=undefined)
+    {
+   
+    console.log('isiMpin useEfek',fromScreen);
+    console.log('isi State Data Mpin Pages', stateDataMpin.isiMpin);
+    dispatch(setMpin({isiMpin:isiMpin}));
+    if(isiMpin.length==6){
+      dispatch(setMpin({isiMpin:isiMpin}));
+        dispatch(MpinChecking(fromScreen, isiMpin, navigation, stateDataMpin, setIsRunningCountdown, setIsVisibleInvalid, setIsVisible))   
+        setIsiMpin([])  
+    }
+  }
+  }, [isiMpin]);
+  
+
+  const HandleKirimUlang = () => {
+    Alert.alert('Mohon tunggu', 'PIN sedang dikirimkan kembali ke nomor anda');
+  };
+  const HandleBackPages = () => {
+    navigation.goBack();
+  };
+  const handleTutupDone=()=>{
+    setIsVisible(false)
+    navigation.navigate('Login');
+  }
+  const handleTutupGagal=()=>{
+    setIsVisibleInvalid(false)
+  }
+  const handleTutupCoba=()=>{
+    setIsVisibleInvalid(false)
+  }
+  const handleTutupTimeOut=()=>{
+    setIsVisibleTimeOut(false)
+  }
+  const handleTutupCobaTimeOut=()=>{
+    setIsVisibleTimeOut(false)
+  }
+  return (
+    <ScrollView style={styles.Container}>
+      <AlertDone visible={isVisible} onPress={handleTutupDone} value={'Selamat! MPIN yang telah anda masukkan benar. Silahkan lanjutkan dengan login menggunakan username dan password '}/>
+      <AlertGagal visible={isVisibleInvalid} onPressTutup={handleTutupGagal} onPressCoba={handleTutupCoba} value={'Kode MPIN yang anda masukkan salah! Silahkan dicoba kembali dalam beberapa saat'}/>
+    
+      <Image source={BackgroundGradient} style={styles.GradienHeaderBlue}/>
+
+      <BackMenu onPress={HandleBackPages} />
+      <Text style={styles.TextHeader}>MPIN</Text>
+      <View style={styles.ContainerBody}>
+        <Image source={ImageLockPassword}  style={styles.StyleImagePhoneOTP} />
+        
+        <View style={styles.StyleViewFont}>
+          <Text style={styles.FontOTP}>
+            Untuk keamanan dalam bertransaksi silahkan masukkan 6 digit MPIN
+          </Text>
+        </View>
+        <View style={styles.StyleSecurePIN}>
+          
+          <View style={(stateDataMpin.isiMpin[0]!=null)?styles.DotPinTrueRev:styles.DotPinFalse} />
+          <View style={(stateDataMpin.isiMpin[1]!=null)?styles.DotPinTrueRev:styles.DotPinFalse} />
+          <View style={(stateDataMpin.isiMpin[2]!=null)?styles.DotPinTrueRev:styles.DotPinFalse} />
+          <View style={(stateDataMpin.isiMpin[3]!=null)?styles.DotPinTrueRev:styles.DotPinFalse} />
+          <View style={(stateDataMpin.isiMpin[4]!=null)?styles.DotPinTrueRev:styles.DotPinFalse} />
+          <View style={(stateDataMpin.isiMpin[5]!=null)?styles.DotPinTrueRev:styles.DotPinFalse} />
+          
+        </View>
+        <ButtonClick title={'Lupa MPIN?'} onPress={HandleKirimUlang} />
+        <View style={styles.ViewNumberKeyboard}>
+      
+          <NumberKeyboard
+            value={1}
+            onPress={() => setIsiMpin([...isiMpin,1])}
+          />
+          <NumberKeyboard
+            value={2}
+            onPress={() =>  setIsiMpin([...isiMpin,2])}
+          />
+          <NumberKeyboard
+            value={3}
+            onPress={() => setIsiMpin([...isiMpin, 3])}
+          />
+        </View>
+        <View style={styles.ViewNumberKeyboard}>
+          <NumberKeyboard
+            value={4}
+            onPress={() => setIsiMpin([...isiMpin, 4])}
+          />
+          <NumberKeyboard
+            value={5}
+            onPress={() => setIsiMpin([...isiMpin, 5])}
+          />
+          <NumberKeyboard
+            value={6}
+            onPress={() => setIsiMpin([...isiMpin, 6])}
+          />
+        </View>
+        <View style={styles.ViewNumberKeyboard}>
+          <NumberKeyboard
+            value={7}
+            onPress={() => setIsiMpin([...isiMpin, 7])}
+          />
+          <NumberKeyboard
+            value={8}
+            onPress={() => setIsiMpin([...isiMpin, 8])}
+          />
+          <NumberKeyboard
+            value={9}
+            onPress={() => setIsiMpin([...isiMpin, 9])}
+          />
+        </View>
+        <View style={styles.ViewNumberKeyboard}>
+          <NumberKeyboard
+            value={0}
+            onPress={() => setIsiMpin([...isiMpin, 0])}
+          />
+          <TouchableOpacity onPress={deletePin}>
+            <CancelKeyboardOtp style={styles.IconCancelKeyboardMpin} />
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
+  );
+};
+export default MPIN;
+const styles = StyleSheet.create({
+  Container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  TextHeader: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 45,
+  },
+  ContainerBody: {
+    alignItems: 'center',
+  },
+  StyleImagePhoneOTP: {
+    marginTop: 39.5,
+  },
+  FontOTP: {
+    color: '#2B2F3C',
+    fontSize: 14,
+    fontWeight: '400',
+    textAlign:'center',
+  },
+  StyleViewFont: {
+    paddingTop: 10,
+    alignItems: 'center',
+    width:'80%',
+    marginTop:20
+  },
+  StyleSecurePIN: {
+    flexDirection: 'row',
+    marginVertical: 33.14,
+    alignItems:'center'
+  },
+  DotPinTrue: {
+    backgroundColor: '#2F82FF',
+    width: 15.71,
+    height: 15.71,
+    borderRadius: 8,
+    position: 'absolute',
+    left: 3,
+    top: 3.2,
+  },
+  DotPinFalse: {
+    backgroundColor: '#FFFFFF',
+    width: 15.71,
+    height: 15.71,
+    borderRadius: 8,
+    marginHorizontal: 13,
+    borderColor: '#97A5C9',
+    borderWidth: 1,
+    
+  },
+  
+  DotPinTrueRev: {
+    backgroundColor: '#2F82FF',
+    width: 15.71,
+    height: 15.71,
+    borderRadius: 8,
+    marginHorizontal: 13,
+    borderWidth: 1,
+    
+  },
+  CoverDotPinTrue: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#DAE9FF',
+    marginHorizontal: 13,
+  },
+  FontNumberKeyboard: {
+    fontSize: 22,
+    fontWeight: '500',
+  },
+  CoverNumberKeyboard: {
+    backgroundColor: '#F3F7FD',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    marginHorizontal: 27,
+    marginBottom: 25,
+  },
+  ViewNumberKeyboard: {
+    flexDirection: 'row',
+    marginTop:20
+  },
+  IconCancelKeyboardMpin: {
+    position: 'absolute',
+    right: -70,
+    top: 20,
+  },
+  Timer: {
+    marginHorizontal: -10,
+  },
+  GradienHeaderBlue: {
+    width: 400,
+    height: 350,
+    position: 'absolute',
+  },
+  ModalTimeOut:{
+    flex:1,
+    justifyContent:'center',
+    alignItems:'center'
+  }
+});
